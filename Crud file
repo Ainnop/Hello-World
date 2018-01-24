@@ -1,0 +1,150 @@
+
+//DB CONNECTION
+
+<?php
+$host = "localhost";
+$db_name = "sacco";
+$username_db = "root";
+$password_db = "";
+
+try {
+    $conn = new PDO("mysql:host={$host};dbname={$db_name}", $username_db, $password_db);
+}
+  
+// to handle connection error
+catch(PDOException $exception){
+    echo "Connection error: " . $exception->getMessage();
+}
+?>
+
+
+
+//DELETE
+<?php
+
+	try {
+			
+			$data = json_decode(file_get_contents("php://input")); 
+			
+			$id= $data->id;
+		
+			include "../../../../app/db/dbconnect.php";
+			
+			$stmt = $conn->prepare("DELETE FROM setbankbalance WHERE id=?");
+	
+			$stmt->bindParam(1, $id);
+	
+			$stmt->execute();
+			echo true;
+   	}
+   	catch(Exception $e) {
+  		echo 'Message: ' .$e->getMessage();
+}
+   				
+?>
+
+//INSERT
+<?php
+
+	try {
+			
+		$data = json_decode(file_get_contents("php://input")); 
+		
+		$balancedate= $data->balancedate;
+		$amount= $data->amount;
+		
+		include "../../../../app/db/dbconnect.php";
+		
+		$stmt = $conn->prepare("INSERT INTO setbankbalance(balancedate,amount) VALUES (?,?)");
+
+		$stmt->bindParam(1, $balancedate);
+		$stmt->bindParam(2, $amount);
+		
+		$stmt->execute();
+		echo true;
+					
+   	}
+   	catch(Exception $e) {
+  		echo 'Message: ' .$e->getMessage();
+}
+   				
+?>
+
+//SELECT
+
+<?php
+	try {
+			
+			include "../../../../app/db/dbconnect.php";
+			
+			$query = "SELECT * FROM setbankbalance ORDER BY balancedate DESC";
+			$stmt = $conn->prepare( $query );
+			$stmt->execute();
+			  
+			//this is how to get number of rows returned
+			$num = $stmt->rowCount();
+
+			$arr = array();						
+			//check if more than 0 record found
+			if($num>0){
+			  
+			  
+					while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+						//extract row
+						
+						$arr[] = $row;
+			  
+					}
+			  
+			}
+			  
+			//if no records found
+			else{
+				echo "No records found.";
+			}
+			echo $json_info = json_encode($arr);
+
+		}
+		catch(Exception $e) {
+			echo 'Message: ' .$e->getMessage();
+	}
+?>
+
+
+//UPDATE
+
+
+<?php
+
+	try {
+			
+		$data = json_decode(file_get_contents("php://input")); 
+		
+		
+		$balancedate= $data->balancedate;
+		$amount= $data->amount;
+		
+		$id= $data->id;
+		
+		
+		include "../../../../app/db/dbconnect.php";
+		
+		$stmt = $conn->prepare("UPDATE setbankbalance SET balancedate=?, amount=? WHERE id=?");
+
+		$stmt->bindParam(1, $balancedate);
+		$stmt->bindParam(2, $amount);
+		$stmt->bindParam(3, $id);
+
+		$stmt->execute();
+		echo true;
+   	}
+   	catch(Exception $e) {
+  		echo 'Message: ' .$e->getMessage();
+}
+   				
+?>
+
+
+
+
+//
